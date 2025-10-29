@@ -32,6 +32,26 @@ services:
     command: >
       java -jar /app/scheduler-service.jar
 
+  payment-service:
+    container_name: payment-service
+    build: ./payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - payment-db
+      - rabbitmq
+    command: >
+      java -jar /app/payment-service.jar
+
   auth-service:
     container_name: auth-service
     build: ./auth-service
@@ -123,6 +143,19 @@ services:
       - "8025:8025"   # Web UI
       - "1025:1025"   # SMTP
 
+  payment-db:
+    container_name: payment-db
+    image: postgres:13-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+
 volumes:
   auth-db-data:
   email-db-data:
+  payment-db-data:
