@@ -1,10 +1,28 @@
 services:
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    ports:
+      - "8082:8082"
+    command: >
+      java -jar /app/api-gateway.jar
+    environment:
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: auth-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8080
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES: Path=/api/auth/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: email-service
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://email-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES: Path=/api/email/**
+    depends_on:
+      - auth-service
+      - email-service
+
   auth-service:
     container_name: auth-service
     build: ./auth-service
     ports:
-      - "8080:8080"
-      - "5005:5005"
+      - "8080"
+      - "5005"
       
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -39,7 +57,7 @@ services:
     container_name: email-service
     build: ./email-service
     ports:
-      - "8081:8081"
+      - "8081"
     environment:
       EMAIL_SVC_DATASOURCE_URL: jdbc:postgresql://email-db:5432/${EMAIL_DB_NAME}
       EMAIL_SVC_DATASOURCE_USERNAME: ${EMAIL_DB_USER}
