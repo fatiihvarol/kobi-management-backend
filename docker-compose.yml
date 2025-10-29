@@ -17,6 +17,21 @@ services:
       - auth-service
       - email-service
 
+  scheduler-service:
+    container_name: scheduler-service
+    build: ./scheduler-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/subs_management_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - auth-db
+    command: >
+      java -jar /app/scheduler-service.jar
+
   auth-service:
     container_name: auth-service
     build: ./auth-service

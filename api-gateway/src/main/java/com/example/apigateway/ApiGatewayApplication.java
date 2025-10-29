@@ -31,7 +31,7 @@ public class ApiGatewayApplication {
     }
 
     @Bean
-    public RedisRateLcimiter redisRateLimiter() {
+    public RedisRateLimiter redisRateLimiter() {
         return new RedisRateLimiter(10, 20);
     }
 
